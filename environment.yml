@@ -1,0 +1,17 @@
+name: divita
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - cudatoolkit=11.3
+  - pandas
+  - fire
+  - pytorch-lightning
+  - zarr
+  - scipy
+  - scikit-learn
+  - torchinfo
+  - ipython
