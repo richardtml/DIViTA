@@ -16,7 +16,7 @@ GENRES_SHORT_NAMES = [name[:3] for name in GENRES_FULL_NAMES]
 
 GENRES_INDICES = {g: i for i, g in enumerate(GENRES_FULL_NAMES)}
 
-BACKBONES = [f[:-7] for _, f, _ in FILES[1:]]
+BACKBONES = [f[:-7] for f, _, _ in FILES[1:]]
 
 
 def load_num_features(path):

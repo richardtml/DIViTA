@@ -30,13 +30,13 @@ This results are presented in Table 6 of the paper.
 
 ## Reproducing Results
 
-To run the following experiment you will need 40GB of free space.
+To run the following experiment, you will need 40GB of free space.
 
 1. Create and activate the enviroment:
 
 ```sh
-conda env create -f environment.yml
-conda activate t12k
+conda env create -f env.yml
+conda activate divita
 ```
 
 2. Download the data (it can take some hours). By default,

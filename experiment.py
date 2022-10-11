@@ -1,6 +1,6 @@
 """ experiment.py
 
-Reproduce repo results.
+Reproduce transfer results.
 """
 
 import subprocess
@@ -103,4 +103,4 @@ def transfer(data_dir='trailers12k',
 
 if __name__ == '__main__':
     import fire
-    fire.Fire()
+    fire.Fire(transfer)

@@ -8,7 +8,7 @@ from os.path import isfile, join
 import requests
 from tqdm import tqdm
 
-from utils import FILES
+from files import FILES
 
 
 def calculate_md5(filepath, chunk_size=1024 * 1024):
@@ -66,7 +66,7 @@ def download_extract(url, data_dir, name, md5=None, extract=False):
 
 
 def download(data_dir='trailers12k', remove_tgz=True):
-    """Download Trailers12k MGTC and representations.
+    """Download Trailers12k MTGC and representations.
 
     Parameters
     ----------
@@ -75,7 +75,7 @@ def download(data_dir='trailers12k', remove_tgz=True):
     remove_tgz : [type], bool
         Remove tar.gz files.
     """
-    for url, name, md5 in FILES:
+    for name, md5, url in FILES:
         is_gz = name.endswith('gz')
         download_extract(url, data_dir, name, md5, is_gz)
         if remove_tgz and is_gz:

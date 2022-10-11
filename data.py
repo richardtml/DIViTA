@@ -1,6 +1,6 @@
 """ data.py
 
-Trailers12k MGTC Dataset & Dataloader.
+Trailers12k MTGC Dataset & Dataloader.
 """
 
 import random
@@ -17,9 +17,9 @@ import utils
 
 def verify_data(data_dir, x):
     msg = 'Missing {}, download data first: {}'
-    MGTC_path = join(data_dir, 'trailers12k_mgtc.csv')
-    if not isfile(MGTC_path):
-        raise IOError(msg.format('mgtc file', MGTC_path))
+    MTGC_path = join(data_dir, 'trailers12k_mtgc.csv')
+    if not isfile(MTGC_path):
+        raise IOError(msg.format('mtgc file', MTGC_path))
     x_path = join(data_dir, x)
     if not isdir(x_path):
         raise IOError(msg.format('feats file', x_path))
@@ -39,7 +39,7 @@ def collate(batch):
     }
 
 
-class Trailers12kMGTCDataset(Dataset):
+class Trailers12kMTGCDataset(Dataset):
     """Trailers reps dataset."""
 
     def __init__(self, data_dir, split, subset, x, num_clips):
@@ -71,7 +71,7 @@ class Trailers12kMGTCDataset(Dataset):
         self.num_clips = num_clips
         self.num_classes = len(utils.GENRES_FULL_NAMES)
 
-        ds_path = join(data_dir, 'trailers12k_mgtc.csv')
+        ds_path = join(data_dir, 'trailers12k_mtgc.csv')
         df = pd.read_csv(ds_path)
         subset_idx = {'trn': 0, 'val': 1, 'tst': 2}[subset]
         df = df[df[f'split{split}'] == subset_idx]
@@ -165,7 +165,7 @@ def build_dl(data_dir, split, subset, x, num_clips,
         Shuffles dataset.
     """
 
-    ds = Trailers12kMGTCDataset(
+    ds = Trailers12kMTGCDataset(
         data_dir, split, subset, x, num_clips)
     generator = torch.Generator()
     generator.manual_seed(seed)
