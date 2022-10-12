@@ -15,8 +15,8 @@ A description of the Trailers12k dataset can be found in the [site](https://rich
 
 This results are presented in Table 6 of the paper.
 
-| Backbone      | ImageNet-1K | Kinetics-400 | $\mu AP$  | $mAP$ | $wAP$  | $sAP$        |
-| :---          |:-: |:-: | :-:        | :-:        | :-:        | :-:        |
+| Backbone      | ImageNet-1K | Kinetics-400 | $\mu AP$ | $mAP$ | $wAP$  | $sAP$      |
+| :---          | :-:         | :-:          | :-:      | :-:   | :-:    | :-:        |
 | *Light Conv*  |    |    |            |            |            |            |
 | ShuffleNet-2D | ✔ |    | 71.69±0.44 | 66.47±0.73 | 70.51±0.50 | 76.60±0.77 |
 | ShuffleNet-3D |    | ✔ | 63.43±1.54 | 58.18±1.50 | 63.59±1.46 | 69.49±1.58 |

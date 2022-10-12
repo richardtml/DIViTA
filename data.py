@@ -22,7 +22,7 @@ def verify_data(data_dir, x):
         raise IOError(msg.format('mtgc file', MTGC_path))
     x_path = join(data_dir, x)
     if not isdir(x_path):
-        raise IOError(msg.format('feats file', x_path))
+        raise IOError(msg.format('reps file', x_path))
 
 
 def collate(batch):
