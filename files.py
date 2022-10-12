@@ -1,5 +1,5 @@
 FILES = [
-    ['trailers12k_mtgc.csv',
+    ['mtgc.csv',
      'd730579950345b2c0f9c4a9779bd9d44',
      'https://cloud.xibalba.com.mx/s/NknMaLBf9fT4ESA/download'],
     ['i_shufflenet_fpc24.zarr.tar.gz',

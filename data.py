@@ -17,7 +17,7 @@ import utils
 
 def verify_data(data_dir, x):
     msg = 'Missing {}, download data first: {}'
-    MTGC_path = join(data_dir, 'trailers12k_mtgc.csv')
+    MTGC_path = join(data_dir, 'mtgc.csv')
     if not isfile(MTGC_path):
         raise IOError(msg.format('mtgc file', MTGC_path))
     x_path = join(data_dir, x)
@@ -71,7 +71,7 @@ class Trailers12kMTGCDataset(Dataset):
         self.num_clips = num_clips
         self.num_classes = len(utils.GENRES_FULL_NAMES)
 
-        ds_path = join(data_dir, 'trailers12k_mtgc.csv')
+        ds_path = join(data_dir, 'mtgc.csv')
         df = pd.read_csv(ds_path)
         subset_idx = {'trn': 0, 'val': 1, 'tst': 2}[subset]
         df = df[df[f'split{split}'] == subset_idx]
