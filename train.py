@@ -47,10 +47,14 @@ def add_args(parser):
                         default=0,
                         choices=[0, 1, 2],
                         help='dataset split')
-    parser.add_argument('--x', type=str,
-                        default='ik_swin_fps24_fpc24.zarr',
-                        choices=utils.BACKBONES,
-                        help='frames representations')
+    parser.add_argument('--ix', type=str,
+                        default='trailers_i_shufflenet_fpc24.zarr',
+                        choices=utils.BACKBONES+['none'],
+                        help='image clip representations')
+    parser.add_argument('--vx', type=str,
+                        default='trailers_k_shufflenet_fps24_fpc24.zarr',
+                        choices=utils.BACKBONES+['none'],
+                        help='video clip representations')
     parser.add_argument('--num_clips', type=int,
                         default=30,
                         help='number of clips per example')
@@ -147,27 +151,29 @@ class LModule(pl.LightningModule):
         self.loss_fn = nn.BCEWithLogitsLoss()
 
     def build_model(self, hparams):
-        num_features = utils.load_num_features(
-            join(self.hparams.data_dir, hparams.x))
-        return build_divita(num_features, hparams.cam)
+        inum_features = (None if hparams.ix == 'none' else
+            utils.load_num_features(join(self.hparams.data_dir, hparams.ix)))
+        vnum_features = (None if hparams.vx == 'none' else
+            utils.load_num_features(join(self.hparams.data_dir, hparams.vx)))
+        return build_divita(inum_features, vnum_features, 'late', hparams.cam)
 
     def train_dataloader(self):
         return build_dl(self.hparams.data_dir, self.hparams.split,
-                        'trn', self.hparams.x, self.hparams.num_clips,
-                        self.hparams.batch_size, self.hparams.num_workers,
-                        True, self.hparams.seed)
+                        'trn', self.hparams.ix, self.hparams.vx,
+                        self.hparams.num_clips, self.hparams.batch_size,
+                        self.hparams.num_workers, True, self.hparams.seed)
 
     def val_dataloader(self):
         return build_dl(self.hparams.data_dir, self.hparams.split,
-                        'val', self.hparams.x, self.hparams.num_clips,
-                        self.hparams.batch_size, self.hparams.num_workers,
-                        False, self.hparams.seed)
+                        'val', self.hparams.ix, self.hparams.vx,
+                        self.hparams.num_clips, self.hparams.batch_size,
+                        self.hparams.num_workers, False, self.hparams.seed)
 
     def test_dataloader(self):
         return build_dl(self.hparams.data_dir, self.hparams.split,
-                        'tst', self.hparams.x, self.hparams.num_clips,
-                        self.hparams.batch_size, self.hparams.num_workers,
-                        False, self.hparams.seed)
+                        'tst', self.hparams.ix, self.hparams.vx,
+                        self.hparams.num_clips, self.hparams.batch_size,
+                        self.hparams.num_workers, False, self.hparams.seed)
 
     def configure_optimizers(self):
         opt = optim.AdamW(self.model.parameters(), lr=self.hparams.lr,
@@ -184,9 +190,10 @@ class LModule(pl.LightningModule):
 
     def forward_with_loss(self, batch):
         snippets = batch['snippets']
-        x = batch['x']
+        ix = batch['ix']
+        vx = batch['vx']
         y_true = batch['y']
-        y_lgts = self.model(x)
+        y_lgts = self.model(ix, vx)
         loss = self.loss_fn(y_lgts, y_true)
         return snippets, y_true, y_lgts, loss
 
@@ -245,9 +252,10 @@ def predict(model, dl, subset):
     with torch.no_grad():
         for batch in tqdm(dl, ncols=75, desc=f'Eval {subset}'):
             snippets = batch['snippets']
-            x = batch['x'].to(device)
+            ix = batch['ix'].to(device)
+            vx = batch['vx'].to(device)
             y_true = batch['y'].to(device)
-            y_prob = model.predict(x)
+            y_prob = model.predict(ix, vx)
             outputs.append([snippets, y_true, y_prob])
         snippets, y_true, y_prob = list(zip(*outputs))
         snippets = torch.cat(snippets)
@@ -263,10 +271,13 @@ def predict(model, dl, subset):
 def save_results(metrics, subset, hparams, epoch):
     cols = ['run', 'split', 'epoch', 'uap', 'map', 'wap', 'iap']
     cols += utils.GENRES_SHORT_NAMES
+<<<<<<< HEAD
     run = hparams.run[9:].split('.')[0]
+=======
+>>>>>>> develop
     metrics = [m * 100 for m in metrics]
     df = pd.DataFrame(columns=cols)
-    df.loc[0] = [run, hparams.split, epoch] + metrics
+    df.loc[0] = [hparams.run, hparams.split, epoch] + metrics
 
     name = getattr(hparams, f'{subset}_csv')
     path = join(hparams.results_dir, hparams.exp, f'{name}.csv')
@@ -286,7 +297,10 @@ def evaluate(model, val_dl, tst_dl, hparams, epoch):
 def main(args):
     hparams = add_args(argparse.ArgumentParser()).parse_args()
 
-    verify_data(hparams.data_dir, hparams.x)
+    if hparams.ix != 'none':
+        verify_data(hparams.data_dir, hparams.ix)
+    if hparams.vx != 'none':
+        verify_data(hparams.data_dir, hparams.vx)
 
     torch.multiprocessing.set_sharing_strategy('file_system')
     monitor_mode = 'min' if hparams.stop_metric[:4] == 'loss' else 'max'
