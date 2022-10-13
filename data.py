@@ -15,16 +15,6 @@ from torch.utils.data import Dataset, DataLoader
 import utils
 
 
-def verify_data(data_dir, x):
-    msg = 'Missing {}, download data first: {}'
-    MTGC_path = join(data_dir, 'mtgc.csv')
-    if not isfile(MTGC_path):
-        raise IOError(msg.format('mtgc file', MTGC_path))
-    x_path = join(data_dir, x)
-    if not isdir(x_path):
-        raise IOError(msg.format('reps file', x_path))
-
-
 def collate(batch):
     ix = [example['ix'] for example in batch]
     ix = torch.from_numpy(np.concatenate(ix))
@@ -71,9 +61,9 @@ class Trailers12kMTGCDataset(Dataset):
             raise ValueError(f'invalid subset={subset}')
 
         if ix != 'none':
-            verify_data(data_dir, ix)
+            utils.verify_data(data_dir, ix)
         if vx != 'none':
-            verify_data(data_dir, vx)
+            utils.verify_data(data_dir, vx)
 
         self.ix = ix
         self.vx = vx

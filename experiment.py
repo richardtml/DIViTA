@@ -111,12 +111,14 @@ def get_run_name(ix, vx):
 
 
 def transfer(data_dir='trailers12k',
-             backbones=utils.BACKBONES,
              max_epochs=100,
              lr=0.0001,
              splits=[0, 1, 2],
              results_dir='results'):
     """" Experiment to reproduce paper results in Table 5. """
+    for backbone in utils.BACKBONES:
+        utils.verify_data(data_dir, backbone)
+
     backbones = [
         # shufflenet
         ['trailers_i_shufflenet_fpc24.zarr',

@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import time
+from os.path import join, isdir, isfile
 
 import zarr
 
@@ -43,3 +44,13 @@ def str2list(s):
 def timestamp(fmt='%y%m%dT%H%M%S'):
     """Returns current timestamp."""
     return datetime.datetime.fromtimestamp(time.time()).strftime(fmt)
+
+
+def verify_data(data_dir, x):
+    msg = 'Missing {}, download data first: {}'
+    MTGC_path = join(data_dir, 'mtgc.csv')
+    if not isfile(MTGC_path):
+        raise IOError(msg.format('mtgc file', MTGC_path))
+    x_path = join(data_dir, x)
+    if not isdir(x_path):
+        raise IOError(msg.format('reps file', x_path))

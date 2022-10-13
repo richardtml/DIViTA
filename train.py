@@ -22,7 +22,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
 
 import utils
-from data import build_dl, verify_data
+from data import build_dl
 from model import build_divita
 
 
@@ -294,9 +294,9 @@ def main(args):
     hparams = add_args(argparse.ArgumentParser()).parse_args()
 
     if hparams.ix != 'none':
-        verify_data(hparams.data_dir, hparams.ix)
+        utils.verify_data(hparams.data_dir, hparams.ix)
     if hparams.vx != 'none':
-        verify_data(hparams.data_dir, hparams.vx)
+        utils.verify_data(hparams.data_dir, hparams.vx)
 
     torch.multiprocessing.set_sharing_strategy('file_system')
     monitor_mode = 'min' if hparams.stop_metric[:4] == 'loss' else 'max'
