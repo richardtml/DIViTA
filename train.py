@@ -271,10 +271,6 @@ def predict(model, dl, subset):
 def save_results(metrics, subset, hparams, epoch):
     cols = ['run', 'split', 'epoch', 'uap', 'map', 'wap', 'iap']
     cols += utils.GENRES_SHORT_NAMES
-<<<<<<< HEAD
-    run = hparams.run[9:].split('.')[0]
-=======
->>>>>>> develop
     metrics = [m * 100 for m in metrics]
     df = pd.DataFrame(columns=cols)
     df.loc[0] = [hparams.run, hparams.split, epoch] + metrics
