@@ -158,7 +158,7 @@ cython_debug/
 !.vscode/*.code-snippets
 
 # data
-trailers12k
+trailers12k*
 
 # results
-results
+results*
