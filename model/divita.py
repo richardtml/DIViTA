@@ -179,9 +179,9 @@ def build_cam(num_features, arch):
         raise NotImplementedError(f'invalid cam {arch}')
 
 
-def build_early_fusion(fusion, fx_num_features, vx_num_features):
+def build_early_fusion(fusion, ix_num_features, vx_num_features):
     fusion = Cat(1)
-    fusion.out_features = fx_num_features + vx_num_features
+    fusion.out_features = ix_num_features + vx_num_features
     return fusion
 
 
@@ -190,7 +190,7 @@ def build_late_fusion(fusion, num_classes):
     return nn.Sequential(Stack(1), avg)
 
 
-class DIViTA(nn.Module):
+class DIViTASingle(nn.Module):
 
     def __init__(self, num_features, cam, num_classes=10):
         super().__init__()
@@ -227,33 +227,122 @@ class DIViTA(nn.Module):
         return torch.sigmoid(self(x))
 
 
-def build_divita(num_features, cam):
-    net = DIViTA(num_features, cam)
+class DIViTA(nn.Module):
+
+    IX_ONLY, VX_ONLY, EARLY_FUSION, LATE_FUSION = range(4)
+
+    def __init__(self, ix_num_feats, vx_num_feats,
+                 fusion, cam, num_classes=10):
+        super().__init__()
+        if ix_num_feats and not vx_num_feats:
+            self.modality = DIViTA.IX_ONLY
+            self.net = DIViTASingle(ix_num_feats, cam, num_classes)
+        elif not ix_num_feats and vx_num_feats:
+            self.modality = DIViTA.VX_ONLY
+            self.net = DIViTASingle(vx_num_feats, cam, num_classes)
+        # both
+        elif ix_num_feats and vx_num_feats:
+            if fusion not in {'early', 'late'}:
+                raise NotImplementedError(
+                    f'invalid fusion={fusion}')
+            if fusion == 'early':
+                self.modality = DIViTA.EARLY_FUSION
+                self.fusion = build_early_fusion(fusion,
+                                                 ix_num_feats,
+                                                 vx_num_feats)
+                self.net = DIViTASingle(
+                    self.fusion.out_features, cam, num_classes)
+            else:
+                self.modality = DIViTA.LATE_FUSION
+                self.fnet = DIViTASingle(
+                    ix_num_feats, cam, num_classes)
+                self.vnet = DIViTASingle(
+                    vx_num_feats, cam, num_classes)
+                self.fusion = build_late_fusion(fusion,
+                                                num_classes)
+        else:
+            raise ValueError('both feats cannot be 0 '
+                             f'ix_num_feats={ix_num_feats} '
+                             f'vx_num_feats={vx_num_feats}')
+
+    def forward(self, ix, vx):
+        """Dimensions: batch B, num features E, sequence S, labels L.
+        Parameters
+        ----------
+        ix : torch.float
+            (B, S, Ff) frames rep.
+        vx : [type]
+            (B, S, Fv) video rep.
+        Returns
+        -------
+        [type]
+            [description]
+        """
+        if self.modality == DIViTA.IX_ONLY:
+            # (B, L) <- (B, F, S)
+            x = self.net(ix)
+        elif self.modality == DIViTA.VX_ONLY:
+            # (B, L) <- (B, F, S)
+            x = self.net(vx)
+        elif self.modality == DIViTA.EARLY_FUSION:
+            # (B, F, S) <- (B, Ff, S), (B, Fv, S)
+            x = self.fusion([ix, vx])
+            # (B, L) <- (B, F, S)
+            x = self.net(x)
+        else:
+            # (B, L) <- (B, F, S)
+            ix = self.fnet(ix)
+            # (B, L) <- (B, F, S)
+            vx = self.vnet(vx)
+            # (B, L) <- (B, L) , (B, L)
+            x = self.fusion([ix, vx])
+        return x
+
+    def predict(self, ix, vx):
+        return torch.sigmoid(self(ix, vx))
+
+
+def build_divita(inum_features, vnum_features, fusion, cam):
+    net = DIViTA(inum_features, vnum_features, fusion, cam)
     return net
 
 
 def test_divita(
-        num_features=768,
+        inum_features=768,
+        vnum_features=768,
         num_clips=30,
+        fusion='late',
         cam='tsfm',
         batch_size=1,
         depth=4):
 
     from torchinfo import summary
 
-    x_shape = [batch_size, num_features, num_clips]
-    x = torch.zeros(x_shape)
 
-    model = build_divita(num_features, cam).eval()
+    if inum_features == 'none':
+        ix_shape = [batch_size, 1]
+    else:
+        ix_shape = [batch_size, inum_features, num_clips]
+
+    if vnum_features == 'none':
+        vx_shape = [batch_size, 1]
+    else:
+        vx_shape = [batch_size, vnum_features, num_clips]
+
+    fx = torch.zeros(ix_shape)
+    vx = torch.zeros(vx_shape)
+
+    model = build_divita(inum_features, vnum_features, fusion, cam).eval()
 
     with torch.no_grad():
-        y = model(x)
+        y = model(fx, vx)
 
     print(model)
-    summary(model, x_shape,
+    summary(model, [ix_shape, vx_shape],
             col_names=['input_size', 'output_size', 'num_params'],
             depth=depth, device='cpu')
-    print(f'x {x.shape} {x.dtype}')
+    print(f'fx {fx.shape} {fx.dtype}')
+    print(f'vx {vx.shape} {vx.dtype}')
     print(f'y {y.shape} {y.dtype}')
 
 
