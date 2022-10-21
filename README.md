@@ -1,10 +1,10 @@
-# *Trailers12k*: Evaluating Transfer Learning For Movie Trailer Genre Recognition
+# Trailers12k: Improving Transfer Learning with a Dual Image and Video Transformer for Multi-label Movie Trailer Genre Classification
 
 By [Ricardo Montalvo-Lezama](https://turing.iimas.unam.mx/~ricardoml/),
 [Berenice Montalvo-Lezama](https://turing.iimas.unam.mx/~bereml/) and
 [Gibran Fuentes-Pineda](http://turing.iimas.unam.mx/~gibranfp/).
 
-This repo reproduces the main results of [*Trailers12k*: Evaluating Transfer Learning For Movie Trailer Genre Recognition](https://arxiv.org/abs/2210.07983).
+This repo reproduces the main results of [Trailers12k: Improving Transfer Learning with a Dual Image and Video Transformer for Multi-label Movie Trailer Genre Classification](https://arxiv.org/abs/2210.07983).
 
 A description of the Trailers12k dataset can be found in the [site](https://richardtml.github.io/trailers12k/).
 
@@ -63,9 +63,9 @@ If you find this work useful in your research, please consider citing.
 @misc{trailers12k,
   doi = {10.48550/ARXIV.2210.07983},
   url = {https://arxiv.org/abs/2210.07983},
+  title = {{Trailers12k}: Improving Transfer Learning with a Dual Image and Video Transformer for Multi-label Movie Trailer Genre Classification},
   author = {Montalvo-Lezama, Ricardo and Montalvo-Lezama, Berenice and Fuentes-Pineda, Gibran},
   keywords = {Movie genre classification, Transfer learning, Video dataset, Spatio-temporal representations, Video understanding, Transformers, Resource efficient architectures},
-  title = {{Trailers12k}: Evaluating Transfer Learning for Movie Trailer Genre Classification},
   publisher = {arXiv},
   year = {2022},
   copyright = {Creative Commons Attribution Non Commercial No Derivatives 4.0 International}
